@@ -1,0 +1,81 @@
+```plantuml
+@startuml Shop Lite Use Case Diagram
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam usecaseFontName Arial
+skinparam usecaseFontSize 12
+
+:Customer: as Customer
+:Admin: as Admin
+
+rectangle "Shop Lite E-commerce System" {
+  ' Authentication Use Cases
+  usecase "Register Account" as Register
+  usecase "Login" as Login
+  usecase "Logout" as Logout
+  
+  ' Product Management Use Cases
+  usecase "Browse Products" as BrowseProducts
+  usecase "View Product Details" as ViewProductDetails
+  usecase "Search Products" as SearchProducts
+  usecase "Browse Categories" as BrowseCategories
+  usecase "Filter Products by Category" as FilterByCategory
+  
+  ' Admin Use Cases
+  usecase "Manage Products" as ManageProducts
+  usecase "Add Product" as AddProduct
+  usecase "Update Product" as UpdateProduct
+  usecase "Delete Product" as DeleteProduct
+  usecase "Manage Categories" as ManageCategories
+  usecase "Manage Orders" as ManageOrders
+  usecase "Update Order Status" as UpdateOrderStatus
+  
+  ' Shopping Cart Use Cases
+  usecase "Add to Cart" as AddToCart
+  usecase "Remove from Cart" as RemoveFromCart
+  usecase "View Cart" as ViewCart
+  usecase "Update Cart Quantity" as UpdateCartQuantity
+  
+  ' Order Use Cases
+  usecase "Checkout" as Checkout
+  usecase "View Order History" as ViewOrderHistory
+  usecase "View Order Details" as ViewOrderDetails
+}
+
+' Customer relationships
+Customer --> Register
+Customer --> Login
+Customer --> Logout
+Customer --> BrowseProducts
+Customer --> ViewProductDetails
+Customer --> SearchProducts
+Customer --> BrowseCategories
+Customer --> FilterByCategory
+Customer --> AddToCart
+Customer --> RemoveFromCart
+Customer --> ViewCart
+Customer --> UpdateCartQuantity
+Customer --> Checkout
+Customer --> ViewOrderHistory
+Customer --> ViewOrderDetails
+
+' Admin relationships
+Admin --> Login
+Admin --> Logout
+Admin --> ManageProducts
+Admin --> ManageCategories
+Admin --> ManageOrders
+
+ManageProducts <|-- AddProduct
+ManageProducts <|-- UpdateProduct
+ManageProducts <|-- DeleteProduct
+ManageOrders <|-- UpdateOrderStatus
+
+' Include relationships
+Checkout ..> ViewCart : <<include>>
+ViewOrderDetails ..> ViewOrderHistory : <<include>>
+
+@enduml
+```
