@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { RootState } from '../app/store';
 import { useCreateOrderMutation } from '../features/api/apiSlice';
-import { clearCart } from '../features/cart/cartSlice';
+import { clearCart, paymentSuccess, paymentFailed, startPaymentProcess, resetPaymentStatus } from '../features/cart/cartSlice';
 import { Product } from '../types';
+import StripePaymentForm from '../components/payment/StripePaymentForm';
 
 interface CheckoutForm {
   fullName: string;
@@ -26,10 +27,11 @@ interface OrderRequest {
     quantity: number;
   }[];
   totalAmount: number;
+  paymentIntentId?: string; // Optional payment intent ID for credit card payments
 }
 
 const Checkout: React.FC = () => {
-  const { items, totalAmount } = useAppSelector((state: RootState) => state.cart);
+  const { items, totalAmount, paymentStatus, paymentIntentId } = useAppSelector((state: RootState) => state.cart);
   const { user } = useAppSelector((state: RootState) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -57,6 +59,27 @@ const Checkout: React.FC = () => {
       [name]: value,
     });
   };
+  
+  // Effect to handle resetting payment status when component mounts/unmounts
+  React.useEffect(() => {
+    // Reset payment status when component mounts
+    dispatch(resetPaymentStatus());
+    
+    // Reset payment status when component unmounts
+    return () => {
+      dispatch(resetPaymentStatus());
+    };
+  }, [dispatch]);
+  
+  const handlePaymentSuccess = (paymentIntentId: string) => {
+    dispatch(paymentSuccess(paymentIntentId));
+    handleSubmit(new Event('submit') as any);
+  };
+  
+  const handlePaymentError = (errorMessage: string) => {
+    dispatch(paymentFailed(errorMessage));
+    setError(`Payment failed: ${errorMessage}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +88,16 @@ const Checkout: React.FC = () => {
     if (items.length === 0) {
       setError('Your cart is empty');
       return;
+    }
+
+    // For credit card payments, we need to check if payment was successful
+    if (formData.paymentMethod === 'credit' && paymentStatus !== 'succeeded') {
+      // If using Stripe and payment hasn't succeeded yet, don't proceed
+      if (e.type === 'submit') {
+        // User clicked the form submit button directly, not from Stripe callback
+        // We'll let the StripePaymentForm handle the payment process
+        return;
+      }
     }
 
     try {
@@ -77,9 +110,15 @@ const Checkout: React.FC = () => {
         })),
         totalAmount: totalAmount * 1.1, // Including tax
       };
+      
+      // Add payment intent ID if we have one
+      if (formData.paymentMethod === 'credit' && paymentStatus === 'succeeded') {
+        orderData.paymentIntentId = paymentIntentId || '';
+      }
 
       await createOrder(orderData as any).unwrap(); // Type assertion as any to bypass type checking
       dispatch(clearCart());
+      dispatch(resetPaymentStatus());
       navigate('/order-confirmation');
     } catch (err: any) {
       setError(
@@ -268,14 +307,24 @@ const Checkout: React.FC = () => {
                     </label>
                   </div>
                 </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-primary mt-3"
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Processing...' : 'Place Order'}
-                </button>
+                
+                {formData.paymentMethod === 'credit' ? (
+                  <div className="mt-4">
+                    <StripePaymentForm 
+                      amount={totalAmount * 1.1}
+                      onSuccess={handlePaymentSuccess}
+                      onError={handlePaymentError}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn btn-primary mt-3"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Processing...' : 'Place Order'}
+                  </button>
+                )}
               </form>
             </div>
           </div>

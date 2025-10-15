@@ -30,6 +30,7 @@ public class Order {
     
     private String shippingAddress;
     private String paymentMethod;
+    private String paymentIntentId; // For Stripe payments
     
     // Timestamps
     private java.time.LocalDateTime createdAt;

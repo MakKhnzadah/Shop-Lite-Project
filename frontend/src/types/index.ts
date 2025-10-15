@@ -4,6 +4,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  profileImage?: string;
   roles: Role[];
   createdAt: string;
   updatedAt: string;
@@ -21,6 +22,7 @@ export interface Product {
   price: number;
   imageUrl?: string;
   stock: number;
+  stockQuantity: number;
   category: Category;
   createdAt: string;
   updatedAt: string;
@@ -74,12 +76,11 @@ export interface CartItem {
 }
 
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 
 export interface RegisterRequest {
-  username: string;
   email: string;
   password: string;
   firstName?: string;

@@ -7,7 +7,6 @@ import { RegisterRequest } from '../types';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState<RegisterRequest>({
-    username: '',
     email: '',
     password: '',
     firstName: '',
@@ -55,20 +54,7 @@ const Register: React.FC = () => {
             )}
             
             <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label htmlFor="username" className="form-label">
-                  Username *
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+
               
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">

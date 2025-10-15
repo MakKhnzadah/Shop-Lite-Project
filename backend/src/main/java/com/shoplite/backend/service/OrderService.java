@@ -39,12 +39,13 @@ public class OrderService {
     }
     
     @Transactional
-    public Order createOrder(User user, List<OrderItem> items, String shippingAddress, String paymentMethod) {
+    public Order createOrder(User user, List<OrderItem> items, String shippingAddress, String paymentMethod, String paymentIntentId) {
         Order order = new Order();
         order.setUser(user);
         order.setStatus(Order.OrderStatus.PENDING);
         order.setShippingAddress(shippingAddress);
         order.setPaymentMethod(paymentMethod);
+        order.setPaymentIntentId(paymentIntentId);
         
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (OrderItem item : items) {

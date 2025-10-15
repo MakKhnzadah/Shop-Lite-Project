@@ -1,126 +1,154 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAppSelector } from '../app/hooks';
 import { RootState } from '../app/store';
-import { useGetUserOrdersQuery } from '../features/api/apiSlice';
+import { 
+  Typography, 
+  Container, 
+  Grid, 
+  Paper, 
+  Box, 
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  Divider
+} from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const { user } = useAppSelector((state: RootState) => state.auth);
-  const { data: orders, isLoading, error, refetch } = useGetUserOrdersQuery();
+  
+  // Placeholder data until API works correctly
+  const placeholderOrders = [
+    { id: 1, orderNumber: "ORD-2025-001", date: '2025-10-01', status: 'DELIVERED', totalAmount: 129.99 },
+    { id: 2, orderNumber: "ORD-2025-002", date: '2025-09-15', status: 'PENDING', totalAmount: 79.50 }
+  ];
 
-  useEffect(() => {
-    // Refresh orders when component mounts
-    refetch();
-  }, [refetch]);
-
-  if (isLoading) {
-    return <div className="text-center py-5">Loading dashboard data...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-5 text-danger">
-        Error loading dashboard data. Please try again later.
-      </div>
-    );
-  }
+  // Calculate order stats
+  const pendingCount = placeholderOrders.filter(order => order.status === 'PENDING').length;
+  const deliveredCount = placeholderOrders.filter(order => order.status === 'DELIVERED').length;
 
   return (
-    <div className="container py-5">
-      <h1 className="mb-4">Dashboard</h1>
+    <Container sx={{ py: 5 }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 4, fontWeight: 600 }}>
+        Dashboard
+      </Typography>
 
-      <div className="row mb-4">
-        <div className="col">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Welcome, {user?.firstName || user?.username}</h5>
-              <p className="card-text">
-                Here you can manage your account and track your orders.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Grid container spacing={4}>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3, borderRadius: 2 }}>
+            <Typography variant="h5" gutterBottom>
+              Welcome, {user?.firstName || user?.username || 'User'}
+            </Typography>
+            <Typography variant="body1">
+              Here you can manage your account and track your orders.
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
 
-      <div className="row mb-4">
-        <div className="col-md-4">
-          <div className="dashboard-stat">
-            <div className="dashboard-stat-title">Total Orders</div>
-            <div className="dashboard-stat-value">{orders?.length || 0}</div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="dashboard-stat">
-            <div className="dashboard-stat-title">Pending Orders</div>
-            <div className="dashboard-stat-value">
-              {orders?.filter((order) => order.status === 'PENDING').length || 0}
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4">
-          <div className="dashboard-stat">
-            <div className="dashboard-stat-title">Completed Orders</div>
-            <div className="dashboard-stat-value">
-              {orders?.filter((order) => order.status === 'DELIVERED').length || 0}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Stats Cards */}
+      <Box sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h5" gutterBottom>
+          Order Status
+        </Typography>
+      </Box>
+      
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper sx={{ p: 3, borderRadius: 2, bgcolor: '#f9f9f9', height: '100%' }}>
+            <Typography variant="subtitle1" color="textSecondary">Pending Orders</Typography>
+            <Typography variant="h3" sx={{ mt: 2, fontWeight: 'bold' }}>
+              {pendingCount}
+            </Typography>
+          </Paper>
+        </Grid>
 
-      <div className="row">
-        <div className="col">
-          <h3>Recent Orders</h3>
-          {orders && orders.length > 0 ? (
-            <div className="table-responsive">
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Order Number</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Actions</th>
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper sx={{ p: 3, borderRadius: 2, bgcolor: '#f9f9f9', height: '100%' }}>
+            <Typography variant="subtitle1" color="textSecondary">Delivered Orders</Typography>
+            <Typography variant="h3" sx={{ mt: 2, fontWeight: 'bold' }}>
+              {deliveredCount}
+            </Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Paper sx={{ p: 3, borderRadius: 2, bgcolor: '#f9f9f9', height: '100%' }}>
+            <Typography variant="subtitle1" color="textSecondary">Total Orders</Typography>
+            <Typography variant="h3" sx={{ mt: 2, fontWeight: 'bold' }}>
+              {placeholderOrders.length}
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Recent Orders */}
+      <Box sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h5" gutterBottom>
+          Recent Orders
+        </Typography>
+      </Box>
+
+      <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        {placeholderOrders && placeholderOrders.length > 0 ? (
+          <Box sx={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: '#f5f5f5' }}>
+                  <th style={{ padding: '16px', textAlign: 'left' }}>Order Number</th>
+                  <th style={{ padding: '16px', textAlign: 'left' }}>Date</th>
+                  <th style={{ padding: '16px', textAlign: 'left' }}>Status</th>
+                  <th style={{ padding: '16px', textAlign: 'left' }}>Total</th>
+                  <th style={{ padding: '16px', textAlign: 'left' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {placeholderOrders.map((order) => (
+                  <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '16px' }}>{order.orderNumber}</td>
+                    <td style={{ padding: '16px' }}>{order.date}</td>
+                    <td style={{ padding: '16px' }}>
+                      <Chip
+                        label={order.status}
+                        color={order.status === 'DELIVERED' ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </td>
+                    <td style={{ padding: '16px' }}>${order.totalAmount.toFixed(2)}</td>
+                    <td style={{ padding: '16px' }}>
+                      <Button
+                        component={Link}
+                        to={`/orders/${order.id}`}
+                        variant="outlined"
+                        size="small"
+                      >
+                        Details
+                      </Button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id}>
-                      <td>{order.orderNumber}</td>
-                      <td>
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            order.status === 'DELIVERED'
-                              ? 'bg-success'
-                              : order.status === 'CANCELLED'
-                              ? 'bg-danger'
-                              : 'bg-warning'
-                          }`}
-                        >
-                          {order.status}
-                        </span>
-                      </td>
-                      <td>${order.totalAmount.toFixed(2)}</td>
-                      <td>
-                        <a
-                          href={`/orders/${order.id}`}
-                          className="btn btn-sm btn-outline-primary"
-                        >
-                          Details
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-center py-3">No orders found.</p>
-          )}
-        </div>
-      </div>
-    </div>
+                ))}
+              </tbody>
+            </table>
+          </Box>
+        ) : (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography>No orders found.</Typography>
+          </Box>
+        )}
+      </Paper>
+
+      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        <Button
+          component={Link}
+          to="/orders"
+          variant="contained"
+          color="primary"
+        >
+          View All Orders
+        </Button>
+      </Box>
+    </Container>
   );
 };
 

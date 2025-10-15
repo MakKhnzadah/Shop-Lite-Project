@@ -5,12 +5,18 @@ interface CartState {
   items: CartItem[];
   totalItems: number;
   totalAmount: number;
+  paymentStatus: 'idle' | 'processing' | 'succeeded' | 'failed';
+  paymentError: string | null;
+  paymentIntentId: string | null;
 }
 
 const initialState: CartState = {
   items: [],
   totalItems: 0,
   totalAmount: 0,
+  paymentStatus: 'idle',
+  paymentError: null,
+  paymentIntentId: null,
 };
 
 const cartSlice = createSlice({
@@ -83,9 +89,41 @@ const cartSlice = createSlice({
       state.totalItems = 0;
       state.totalAmount = 0;
     },
+    
+    // Payment related reducers
+    startPaymentProcess: (state) => {
+      state.paymentStatus = 'processing';
+      state.paymentError = null;
+    },
+    
+    paymentSuccess: (state, action: PayloadAction<string>) => {
+      state.paymentStatus = 'succeeded';
+      state.paymentIntentId = action.payload;
+      state.paymentError = null;
+    },
+    
+    paymentFailed: (state, action: PayloadAction<string>) => {
+      state.paymentStatus = 'failed';
+      state.paymentError = action.payload;
+    },
+    
+    resetPaymentStatus: (state) => {
+      state.paymentStatus = 'idle';
+      state.paymentError = null;
+      state.paymentIntentId = null;
+    },
   },
 });
 
-export const { addToCart, updateCartItem, removeFromCart, clearCart } = cartSlice.actions;
+export const { 
+  addToCart, 
+  updateCartItem, 
+  removeFromCart, 
+  clearCart,
+  startPaymentProcess,
+  paymentSuccess,
+  paymentFailed,
+  resetPaymentStatus
+} = cartSlice.actions;
 
 export default cartSlice.reducer;

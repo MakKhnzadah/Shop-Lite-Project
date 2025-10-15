@@ -102,7 +102,8 @@ public class UserFlowTest {
             testUser,
             orderItems,
             "123 Test Street, Test City, Test Country",
-            "Credit Card"
+            "Credit Card",
+            null // paymentIntentId (null for testing)
         );
 
         // 6. Verify order was created
