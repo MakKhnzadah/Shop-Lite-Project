@@ -1,0 +1,9 @@
+1- To start the backend server:
+
+
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"; cd "C:\Users\mkhnz\Shop Lite Project\shop-lite\backend"; .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
+
+
+2- start the frontend server:
+
+cd "C:\Users\mkhnz\Shop Lite Project\shop-lite\frontend"; npm start
