@@ -1,0 +1,94 @@
+@startuml Shop Lite Use Case Diagram
+
+' Using style similar to the examples provided in the attachments
+skinparam usecase {
+  BackgroundColor lightblue
+  BorderColor black
+  ArrowColor black
+}
+
+skinparam actor {
+  BorderColor black
+}
+
+skinparam rectangle {
+  BorderColor black
+}
+
+' Define the system boundary
+rectangle "Online Shopping Management System" {
+  ' Authentication Use Cases
+  usecase "Register Account" as Register
+  usecase "Login" as Login
+  usecase "Logout" as Logout
+  
+  ' Product Management Use Cases
+  usecase "Browse Products" as BrowseProducts
+  usecase "View Product Details" as ViewProductDetails
+  usecase "Search Products" as SearchProducts
+  
+  ' Category Management
+  usecase "Browse Categories" as BrowseCategories
+  
+  ' Shopping Cart Use Cases
+  usecase "Add to Cart" as AddToCart
+  usecase "Remove from Cart" as RemoveFromCart
+  usecase "View Cart" as ViewCart
+  usecase "Update Cart Quantity" as UpdateCartQuantity
+  
+  ' Order Use Cases
+  usecase "Checkout" as Checkout
+  usecase "View Order History" as ViewOrderHistory
+  usecase "View Order Details" as ViewOrderDetails
+  
+  ' Customer Support Use Cases
+  usecase "Contact Support" as ContactSupport
+  usecase "Submit Feedback" as SubmitFeedback
+  usecase "View Feedback" as ViewFeedback
+  
+  ' Admin Use Cases
+  usecase "Manage Products" as ManageProducts
+  usecase "Resolve Inquiries" as ResolveInquiries
+}
+
+' Define actors
+:Customer: as Customer
+:Admin: as Admin
+:Support Person: as Support
+
+' Customer relationships
+Customer --> Register
+Customer --> Login
+Customer --> Logout
+Customer --> BrowseProducts
+Customer --> ViewProductDetails
+Customer --> SearchProducts
+Customer --> BrowseCategories
+Customer --> AddToCart
+Customer --> RemoveFromCart
+Customer --> ViewCart
+Customer --> UpdateCartQuantity
+Customer --> Checkout
+Customer --> ViewOrderHistory
+Customer --> ViewOrderDetails
+Customer --> ContactSupport
+Customer --> SubmitFeedback
+
+' Admin relationships
+Admin --> Login
+Admin --> Logout
+Admin --> ManageProducts
+
+' Support Person relationships
+Support --> Login
+Support --> Logout
+Support --> ResolveInquiries
+Support --> ViewFeedback
+
+' Include relationships similar to the examples
+BrowseProducts ..> ViewProductDetails : <<include>>
+Checkout ..> ViewCart : <<include>>
+ViewOrderDetails ..> ViewOrderHistory : <<include>>
+ResolveInquiries ..> ContactSupport : <<include>>
+
+@enduml

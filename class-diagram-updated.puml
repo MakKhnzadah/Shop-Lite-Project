@@ -1,0 +1,92 @@
+@startuml Shop Lite Class Diagram
+
+' Use the style similar to the Bank Management example from the attachments
+skinparam class {
+  BackgroundColor white
+  ArrowColor black
+  BorderColor black
+}
+
+' Main classes with proper layout
+class User {
+  +Id: int
+  +Email: string
+  +Password: string
+  +FirstName: string
+  +LastName: string
+  +CreatedAt: datetime
+  +UpdatedAt: datetime
+}
+
+class Role {
+  +Id: int
+  +Name: string
+}
+
+class Product {
+  +Id: int
+  +Name: string
+  +Description: string
+  +Price: decimal
+  +ImageUrl: string
+  +StockQuantity: int
+  +CreatedAt: datetime
+  +UpdatedAt: datetime
+}
+
+class Category {
+  +Id: int
+  +Name: string
+  +Description: string
+}
+
+class Cart {
+  +Id: int
+  +UserId: int
+  +TotalAmount: decimal
+  +CreatedAt: datetime
+  +UpdatedAt: datetime
+  
+  +CalculateTotalAmount()
+}
+
+class CartItem {
+  +Id: int
+  +CartId: int
+  +ProductId: int
+  +Quantity: int
+}
+
+class Order {
+  +Id: int
+  +UserId: int
+  +Status: string
+  +TotalAmount: decimal
+  +ShippingAddress: string
+  +PaymentMethod: string
+  +CreatedAt: datetime
+  +UpdatedAt: datetime
+}
+
+class OrderItem {
+  +Id: int
+  +OrderId: int
+  +ProductId: int
+  +Quantity: int
+  +PriceAtPurchase: decimal
+}
+
+' Relationships
+User "1" -- "0..*" Role : has >
+User "1" -- "0..1" Cart : has >
+User "1" -- "0..*" Order : places >
+
+Category "1" -- "0..*" Product : contains >
+
+Cart "1" -- "0..*" CartItem : contains >
+Product "1" -- "0..*" CartItem : included in >
+
+Order "1" -- "0..*" OrderItem : contains >
+Product "1" -- "0..*" OrderItem : included in >
+
+@enduml
