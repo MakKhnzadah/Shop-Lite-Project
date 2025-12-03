@@ -1,5 +1,6 @@
 package com.shoplite.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class Category {
     
     private String description;
     
+    @JsonIgnore // prevent infinite recursion when serializing products->category
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 }
