@@ -24,6 +24,11 @@ import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import Contact from './pages/Contact';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
+
+
 
 function App() {
   return (
@@ -39,7 +44,13 @@ function App() {
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route 
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+
+
+
+                <Route 
                 path="/dashboard" 
                 element={
                   <ProtectedRoute>
