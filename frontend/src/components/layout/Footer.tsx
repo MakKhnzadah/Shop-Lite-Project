@@ -6,8 +6,6 @@ import {
   Grid,
   Typography,
   IconButton,
-  TextField,
-  Button,
   Divider,
   useTheme,
   List,
@@ -151,52 +149,6 @@ const Footer: React.FC = () => {
             </List>
           </Grid>
           
-          {/* Newsletter */}
-          <Grid item xs={12} md={4}>
-            <Typography 
-              variant="subtitle1" 
-              sx={{ 
-                mb: 2,
-                fontWeight: 600 
-              }}
-            >
-              NEWSLETTER
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Subscribe to receive updates, exclusive offers, and more.
-            </Typography>
-            <Box 
-              component="form" 
-              sx={{ 
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: 'center',
-              }}
-            >
-              <TextField
-                placeholder="Your email"
-                size="small"
-                fullWidth
-                sx={{ 
-                  mr: { xs: 0, sm: 1 },
-                  mb: { xs: 1, sm: 0 },
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 1,
-                  }
-                }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  px: 3,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                SUBSCRIBE
-              </Button>
-            </Box>
-          </Grid>
         </Grid>
         
         <Divider sx={{ my: 4 }} />
