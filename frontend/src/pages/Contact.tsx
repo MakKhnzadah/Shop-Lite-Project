@@ -18,7 +18,8 @@ const Contact: React.FC = () => {
 	const theme = useTheme();
 
 	const [formData, setFormData] = useState({
-		name: '',
+		firstName: '',
+		lastName: '',
 		email: '',
 		message: '',
 	});
@@ -56,9 +57,9 @@ const Contact: React.FC = () => {
 				</Box>
 
 				<Grid container spacing={6}>
-					<Grid item xs={12} md={6}>
+				console.log('Contact form submitted:', formData);
 						<Paper
-							elevation={0}
+				setFormData({ firstName: '', lastName: '', email: '', message: '' });
 							sx={{
 								p: 4,
 								border: '1px solid',
@@ -97,37 +98,71 @@ const Contact: React.FC = () => {
 									required
 									multiline
 									rows={4}
-									margin="normal"
-									value={formData.message}
-									onChange={handleChange}
-								/>
-								<Button
-									type="submit"
-									variant="contained"
-									color="primary"
-									size="large"
-									sx={{ mt: 2, py: 1.2, px: 4, borderRadius: 1 }}
-								>
-									Send Message
-								</Button>
-							</Box>
-						</Paper>
-					</Grid>
-
-					<Grid item xs={12} md={6}>
-						<Paper
-							elevation={0}
-							sx={{
-								p: 4,
-								border: '1px solid',
-								borderColor: theme.palette.divider,
-								borderRadius: 2,
-								mb: 3,
-							}}
-						>
-							<Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
-								Get in Touch
-							</Typography>
+									<Box component="form" onSubmit={handleSubmit}>
+										<Grid container spacing={2}>
+											<Grid item xs={12} sm={6}>
+												<TextField
+													id="firstName"
+													label="First Name"
+													name="firstName"
+													fullWidth
+													required
+													margin="normal"
+													value={formData.firstName}
+													onChange={handleChange}
+												/>
+											</Grid>
+											<Grid item xs={12} sm={6}>
+												<TextField
+													id="lastName"
+													label="Last Name"
+													name="lastName"
+													fullWidth
+													required
+													margin="normal"
+													value={formData.lastName}
+													onChange={handleChange}
+												/>
+											</Grid>
+											<Grid item xs={12}>
+												<TextField
+													id="email"
+													label="Email"
+													name="email"
+													type="email"
+													fullWidth
+													required
+													margin="normal"
+													value={formData.email}
+													onChange={handleChange}
+												/>
+											</Grid>
+											<Grid item xs={12}>
+												<TextField
+													id="message"
+													label="Message"
+													name="message"
+													fullWidth
+													required
+													multiline
+													rows={4}
+													margin="normal"
+													value={formData.message}
+													onChange={handleChange}
+												/>
+											</Grid>
+											<Grid item xs={12}>
+												<Button
+													type="submit"
+													variant="contained"
+													color="primary"
+													size="large"
+													sx={{ mt: 2, py: 1.2, px: 4, borderRadius: 1 }}
+												>
+													Send Message
+												</Button>
+											</Grid>
+										</Grid>
 
 							<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
 								<RoomOutlinedIcon color="primary" sx={{ mr: 2 }} />
