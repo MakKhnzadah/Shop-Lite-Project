@@ -8,4 +8,10 @@ $env:JAVA_HOME = "C:\Program Files\Java\jdk-21"; cd "C:\Users\mkhnz\Shop Lite Pr
 cd "C:\Users\mkhnz\Shop Lite Project\shop-lite\frontend"; npm start
 
 
-{ email='admin@shoplite.com'; password='admin123' }
+
+
+
+If you still see the old “Cannot find module … AdminLayout” message in VS Code, that’s just the TypeScript language service cache. Please restart it:
+
+In VS Code press "Ctrl+Shift+P".
+Run "TypeScript: Restart TS server".
