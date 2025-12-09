@@ -29,7 +29,7 @@ const TermsAndConditions: React.FC = () => {
                         }}
                     />
                     <Typography variant="subtitle1" color="text.secondary" sx={{ maxWidth: 700, mx: 'auto' }}>
-                        Please read these Terms and Conditions carefully before using our services.
+                        Please read these carefully before using our services.
                     </Typography>
                 </Box>
 
