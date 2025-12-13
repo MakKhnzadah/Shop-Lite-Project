@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAppSelector } from '../app/hooks';
 import { RootState } from '../app/store';
 import {
@@ -23,6 +23,9 @@ import {
   CircularProgress
 } from '@mui/material';
 import ImageUpload from '../components/common/ImageUpload';
+import AdminLayout from '../components/layout/AdminLayout';
+import { useGetCategoriesQuery, useGetProductsQuery } from '../features/api/apiSlice';
+import { Category, Product } from '../types';
 
 interface ProductFormData {
   name: string;
@@ -31,6 +34,11 @@ interface ProductFormData {
   stockQuantity: string;
   categoryId: string;
   imageUrl: string;
+}
+
+interface CategoryFormData {
+  name: string;
+  description: string;
 }
 
 const ProductAdmin: React.FC = () => {
@@ -43,44 +51,14 @@ const ProductAdmin: React.FC = () => {
     categoryId: '',
     imageUrl: '',
   });
-  const [categories, setCategories] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { data: categories = [], refetch: refetchCategories } = useGetCategoriesQuery();
+  const { data: products = [], refetch: refetchProducts, isLoading: loading } = useGetProductsQuery();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-
-  // Fetch categories and products on component mount
-  useEffect(() => {
-    fetchCategories();
-    fetchProducts();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/categories');
-      const data = await response.json();
-      setCategories(data);
-    } catch (err) {
-      setError('Failed to load categories');
-      console.error(err);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('http://localhost:8080/api/products');
-      const data = await response.json();
-      setProducts(data);
-    } catch (err) {
-      setError('Failed to load products');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [categoryForm, setCategoryForm] = useState<CategoryFormData>({ name: '', description: '' });
+  const [catSaving, setCatSaving] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -104,6 +82,83 @@ const ProductAdmin: React.FC = () => {
       ...formData,
       imageUrl,
     });
+  };
+
+  const handleCategoryInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCategoryForm((prev: CategoryFormData) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!token) {
+      setError('You must be logged in as admin to manage categories');
+      return;
+    }
+
+    if (!categoryForm.name.trim()) {
+      setError('Category name is required');
+      return;
+    }
+
+    try {
+      setCatSaving(true);
+      const res = await fetch('http://localhost:8080/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: categoryForm.name.trim(),
+          description: categoryForm.description || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || 'Failed to create category');
+      }
+
+      setSuccess('Category created');
+      setCategoryForm({ name: '', description: '' });
+      await refetchCategories();
+    } catch (err) {
+      console.error(err);
+      setError('Failed to create category');
+    } finally {
+      setCatSaving(false);
+    }
+  };
+
+  const handleCategoryDelete = async (id: number) => {
+    if (!token) {
+      setError('You must be logged in as admin to manage categories');
+      return;
+    }
+
+    if (!window.confirm('Delete this category? This may affect products.')) return;
+
+    try {
+      const res = await fetch(`http://localhost:8080/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok && res.status !== 204) {
+        const txt = await res.text();
+        throw new Error(txt || 'Failed to delete category');
+      }
+
+      setSuccess('Category deleted');
+      await refetchCategories();
+    } catch (err) {
+      console.error(err);
+      setError('Failed to delete category');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -153,7 +208,7 @@ const ProductAdmin: React.FC = () => {
       setSuccess(editMode ? 'Product updated successfully' : 'Product created successfully');
       setEditMode(false);
       setEditId(null);
-      fetchProducts();
+      await refetchProducts();
     } catch (err) {
       setError('Failed to save product');
       console.error(err);
@@ -192,7 +247,7 @@ const ProductAdmin: React.FC = () => {
       }
 
       setSuccess('Product deleted successfully');
-      fetchProducts();
+      await refetchProducts();
     } catch (err) {
       setError('Failed to delete product');
       console.error(err);
@@ -213,7 +268,8 @@ const ProductAdmin: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <AdminLayout>
+    <Container maxWidth="lg" sx={{ py: 0 }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Product Management
       </Typography>
@@ -283,7 +339,7 @@ const ProductAdmin: React.FC = () => {
                   onChange={handleSelectChange}
                   label="Category"
                 >
-                  {categories.map((category) => (
+                  {categories.map((category: Category) => (
                     <MenuItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </MenuItem>
@@ -321,6 +377,76 @@ const ProductAdmin: React.FC = () => {
               </Box>
             </form>
           </Paper>
+          <Box sx={{ height: 24 }} />
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" component="h2" gutterBottom>
+              Category Management
+            </Typography>
+            <form onSubmit={handleCategoryCreate}>
+              <TextField
+                label="Category Name"
+                name="name"
+                value={categoryForm.name}
+                onChange={handleCategoryInput}
+                fullWidth
+                margin="normal"
+                required
+              />
+              <TextField
+                label="Description"
+                name="description"
+                value={categoryForm.description}
+                onChange={handleCategoryInput}
+                fullWidth
+                margin="normal"
+                multiline
+                rows={3}
+              />
+              <Box sx={{ mt: 2 }}>
+                <Button type="submit" variant="contained" disabled={catSaving}>
+                  {catSaving ? 'Saving…' : 'Add Category'}
+                </Button>
+              </Box>
+            </form>
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Existing Categories
+              </Typography>
+              {categories.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">No categories yet</Typography>
+              ) : (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {categories.map((c: Category) => (
+                        <TableRow key={c.id}>
+                          <TableCell>{c.id}</TableCell>
+                          <TableCell>{c.name}</TableCell>
+                          <TableCell>
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="outlined"
+                              onClick={() => handleCategoryDelete(c.id)}
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Box>
+          </Paper>
         </Grid>
         
         <Grid item xs={12} md={8}>
@@ -355,7 +481,7 @@ const ProductAdmin: React.FC = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      products.map((product) => (
+                      products.map((product: Product) => (
                         <TableRow key={product.id}>
                           <TableCell>{product.id}</TableCell>
                           <TableCell>
@@ -404,6 +530,7 @@ const ProductAdmin: React.FC = () => {
         </Grid>
       </Grid>
     </Container>
+    </AdminLayout>
   );
 };
 
